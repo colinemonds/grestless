@@ -14,7 +14,7 @@ The way pgbouncer fixes this is by asking clients for the username and password 
 Another way of going about this is to simply not allow the client to run SQL. If the client can't run SQL, it follows that they can't run `reset role`, and therefore, there's no security problem. This is how PostgREST solves this issue. However, we would *like* to be able run SQL because we love it, or at least prefer it over an eldritch pseudo-DSL crammed into HTTP query parameters.[^2]
 
 ## The grestless solution
-Instead of throwing out the child with the bathwater by declaring all SQL to be verboten, grestless should wrap the user-provided SQL query in such a manner that it will execute normally, but cannot run `reset role`. But how can we safely achieve this? Postgres provides no way of disabling `reset role`, neither for the current session nor even globally, and the naive attempt of just grepping the client's query for `reset role` would be foiled by attackers that just spell the same thing differently (consider `execute 're' + 'set ' + 'ro' + 'le';`).
+Instead of throwing out the child with the bathwater by declaring all SQL to be verboten, grestless should wrap the user-provided SQL query in such a manner that it will execute normally, but cannot run `reset role`. But how can we safely achieve this? Postgres provides no way of disabling `reset role`, neither for the current session nor even globally, and the naive attempt of just grepping the client's query for `reset role` would be foiled by attackers that just spell the same thing differently (consider `execute 're' || 'set ' || 'ro' || 'le'`).
 
 However, when we carefully thumb through the Postgres manual, we will eventually happen upon this short, innocuous sentence:
 

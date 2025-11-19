@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  grestless:
+    build:
+      dockerfile: devenv/grestless/Dockerfile
+      context: ..
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - GRESTLESS_DB_NAME=grestless
+      - GRESTLESS_DBCONN_TYPE=tcp
+      - GRESTLESS_DBCONN_HOST=postgres
+      - GRESTLESS_DBCONN_PORT=5432
+      - GRESTLESS_FRONTAUTH_TYPE=jwt
+      - GRESTLESS_FRONTAUTH_JWT_SECRET=your_jwt_secret
+      - GRESTLESS_DBAUTHENTICATOR_TYPE=static
+      - GRESTLESS_DBAUTHENTICATOR_STATIC_USER=grestless
+      - GRESTLESS_DBAUTHENTICATOR_STATIC_PASSWORD=grestless
+      - GRESTLESS_DBAUTHENTICATED_TYPE=static
+      - GRESTLESS_DBAUTHENTICATED_USER=webuser
+  
+  postgres:
+    build:
+      dockerfile: devenv/postgres/Dockerfile
+      context: ..
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=grestless
+      - AUTHENTICATOR_USER=grestless
+      - AUTHENTICATOR_PASSWORD=grestless
+      - AUTHENTICATED_USER=webuser
+    ports:
+      - "5432:5432"
+    volumes:
+      - grestless_postgres_data:/var/lib/postgresql
+
+volumes:
+  grestless_postgres_data:
